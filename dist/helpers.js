@@ -51,10 +51,9 @@ function applyPropertiesValidators(object, schema) {
       };
     }
     var validator = _joi2.default.reach(joiSchema, key);
-    if (values[key] !== undefined) {
-      validate(key, values[key], validator);
-      object[MODEL_VALUES_SYMBOL][key] = values[key];
-    }
+
+    validate(key, values[key], validator);
+    object[MODEL_VALUES_SYMBOL][key] = values[key];
 
     properties[key] = {
       get: function get() {

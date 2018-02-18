@@ -37,6 +37,10 @@ var _v = require('uuid/v4');
 
 var _v2 = _interopRequireDefault(_v);
 
+var _ws = require('ws');
+
+var _ws2 = _interopRequireDefault(_ws);
+
 var _debug = require('debug');
 
 var _debug2 = _interopRequireDefault(_debug);
@@ -48,6 +52,10 @@ var _commands2 = _interopRequireDefault(_commands);
 var _constants = require('./constants');
 
 var _helpers = require('./helpers');
+
+var _ocppError = require('./ocppError');
+
+var _ocppError2 = _interopRequireDefault(_ocppError);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -87,87 +95,154 @@ var Connection = exports.Connection = function () {
     key: 'onMessage',
     value: function () {
       var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(message) {
-        var messageType, messageId, commandNameOrPayload, commandPayload, _JSON$parse, _JSON$parse2, CommandModel, commandRequest, responseData, responseObj, responseCallback;
+        var messageType, messageId, commandNameOrPayload, commandPayload, errorDetails, _JSON$parse, _JSON$parse2, CommandModel, commandRequest, responseData, responseObj, error, _requests$messageId, responseCallback, _requests$messageId2, rejectCallback;
 
         return _regenerator2.default.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                messageType = void 0, messageId = void 0, commandNameOrPayload = void 0, commandPayload = void 0;
+                messageType = void 0, messageId = void 0, commandNameOrPayload = void 0, commandPayload = void 0, errorDetails = void 0;
                 _context.prev = 1;
                 _JSON$parse = JSON.parse(message);
-                _JSON$parse2 = (0, _slicedToArray3.default)(_JSON$parse, 4);
+                _JSON$parse2 = (0, _slicedToArray3.default)(_JSON$parse, 5);
                 messageType = _JSON$parse2[0];
                 messageId = _JSON$parse2[1];
                 commandNameOrPayload = _JSON$parse2[2];
                 commandPayload = _JSON$parse2[3];
-                _context.next = 13;
+                errorDetails = _JSON$parse2[4];
+                _context.next = 14;
                 break;
 
-              case 10:
-                _context.prev = 10;
+              case 11:
+                _context.prev = 11;
                 _context.t0 = _context['catch'](1);
                 throw new Error('Failed to parse message: "' + message + '", ' + _context.t0.message);
 
-              case 13:
+              case 14:
                 _context.t1 = messageType;
-                _context.next = _context.t1 === _constants.CALL_MESSAGE ? 16 : _context.t1 === _constants.CALLRESULT_MESSAGE ? 27 : _context.t1 === _constants.CALLERROR_MESSAGE ? 27 : 34;
+                _context.next = _context.t1 === _constants.CALL_MESSAGE ? 17 : _context.t1 === _constants.CALLRESULT_MESSAGE ? 55 : _context.t1 === _constants.CALLERROR_MESSAGE ? 62 : 69;
                 break;
 
-              case 16:
+              case 17:
                 // request
                 debug('>> ' + this.url + ': ' + message);
 
                 CommandModel = _commands2.default[commandNameOrPayload];
 
                 if (CommandModel) {
-                  _context.next = 20;
+                  _context.next = 21;
                   break;
                 }
 
                 throw new Error('Unknown command ' + commandNameOrPayload);
 
-              case 20:
+              case 21:
+                commandRequest = void 0, responseData = void 0, responseObj = void 0;
+                _context.prev = 22;
+
                 commandRequest = new CommandModel(commandPayload);
-                _context.next = 23;
+                _context.next = 31;
+                break;
+
+              case 26:
+                _context.prev = 26;
+                _context.t2 = _context['catch'](22);
+                _context.next = 30;
+                return this.sendMessage(messageId, new _ocppError2.default(_ocppError.ERROR_FORMATIONVIOLATION, _context.t2.message), _constants.CALLERROR_MESSAGE);
+
+              case 30:
+                return _context.abrupt('return', _context.sent);
+
+              case 31:
+                _context.prev = 31;
+                _context.next = 34;
                 return this.onRequest(commandRequest);
 
-              case 23:
+              case 34:
                 responseData = _context.sent;
+
                 responseObj = commandRequest.createResponse(responseData);
+                _context.next = 44;
+                break;
 
+              case 38:
+                _context.prev = 38;
+                _context.t3 = _context['catch'](31);
+                error = _context.t3 instanceof _ocppError2.default ? _context.t3 : new _ocppError2.default(_ocppError.ERROR_INTERNALERROR, _context.t3.message, _context.t3.stack);
+                _context.next = 43;
+                return this.sendMessage(messageId, error, _constants.CALLERROR_MESSAGE);
 
-                this.sendMessage(messageId, responseObj, _constants.CALLRESULT_MESSAGE);
-                return _context.abrupt('break', 35);
+              case 43:
+                return _context.abrupt('return', _context.sent);
 
-              case 27:
+              case 44:
+                _context.prev = 44;
+                _context.next = 47;
+                return this.sendMessage(messageId, responseObj, _constants.CALLRESULT_MESSAGE);
+
+              case 47:
+                _context.next = 54;
+                break;
+
+              case 49:
+                _context.prev = 49;
+                _context.t4 = _context['catch'](44);
+
+                debug('Error: ' + _context.t4.message);
+
+                _context.next = 54;
+                return this.sendMessage(messageId, new _ocppError2.default(_ocppError.ERROR_INTERNALERROR, _context.t4.message, _context.t4.stack), _constants.CALLERROR_MESSAGE);
+
+              case 54:
+                return _context.abrupt('break', 70);
+
+              case 55:
                 // response
                 debug('>> ' + this.url + ': ' + message);
 
-                responseCallback = this.requests[messageId];
+                _requests$messageId = (0, _slicedToArray3.default)(this.requests[messageId], 1), responseCallback = _requests$messageId[0];
 
                 if (responseCallback) {
-                  _context.next = 31;
+                  _context.next = 59;
                   break;
                 }
 
                 throw new Error('Response for unknown message ' + messageId);
 
-              case 31:
+              case 59:
                 delete this.requests[messageId];
 
                 responseCallback(commandNameOrPayload);
-                return _context.abrupt('break', 35);
+                return _context.abrupt('break', 70);
 
-              case 34:
+              case 62:
+                // error response
+                debug('>> ' + this.url + ': ' + message);
+
+                _requests$messageId2 = (0, _slicedToArray3.default)(this.requests[messageId], 2), rejectCallback = _requests$messageId2[1];
+
+                if (rejectCallback) {
+                  _context.next = 66;
+                  break;
+                }
+
+                throw new Error('Response for unknown message ' + messageId);
+
+              case 66:
+                delete this.requests[messageId];
+
+                rejectCallback(new _ocppError2.default(commandNameOrPayload, commandPayload, errorDetails));
+                return _context.abrupt('break', 70);
+
+              case 69:
                 throw new Error('Wrong message type ' + messageType);
 
-              case 35:
+              case 70:
               case 'end':
                 return _context.stop();
             }
           }
-        }, _callee, this, [[1, 10]]);
+        }, _callee, this, [[1, 11], [22, 26], [31, 38], [44, 49]]);
       }));
 
       function onMessage(_x2) {
@@ -191,7 +266,7 @@ var Connection = exports.Connection = function () {
       var messageType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _constants.CALLRESULT_MESSAGE;
 
       var socket = this.socket;
-
+      var self = this;
       var commandValues = (0, _helpers.getObjectValues)(command);
 
       return new _promise2.default(function (resolve, reject) {
@@ -199,27 +274,46 @@ var Connection = exports.Connection = function () {
 
         switch (messageType) {
           case _constants.CALL_MESSAGE:
-            _this2.requests[messageId] = onResponse;
+            _this2.requests[messageId] = [onResponse, onRejectResponse];
             var commandName = command.getCommandName();
 
             messageToSend = (0, _stringify2.default)([messageType, messageId, commandName, commandValues]);
             break;
           case _constants.CALLRESULT_MESSAGE:
-          case _constants.CALLERROR_MESSAGE:
             messageToSend = (0, _stringify2.default)([messageType, messageId, commandValues]);
+            break;
+          case _constants.CALLERROR_MESSAGE:
+            var code = command.code,
+                message = command.message,
+                details = command.details;
+
+            messageToSend = (0, _stringify2.default)([messageType, messageId, code, message, details]);
             break;
         }
 
         debug('<< ' + messageToSend);
-        socket.send(messageToSend);
+        if (socket.readyState === _ws2.default.OPEN) {
+          socket.send(messageToSend);
+        } else {
+          return onRejectResponse('Socket closed ' + messageId);
+        }
         if (messageType !== _constants.CALL_MESSAGE) {
           resolve();
+        } else {
+          setTimeout(function () {
+            return onRejectResponse('Timeout for message ' + messageId);
+          }, _constants.SOCKET_TIMEOUT);
         }
 
         function onResponse(payload) {
           var response = command.createResponse(payload);
 
           return resolve(response);
+        }
+        function onRejectResponse(reason) {
+          self.requests[messageId] = function () {};
+          var error = reason instanceof Error ? reason : new Error(reason);
+          reject(error);
         }
       });
     }

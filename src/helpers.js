@@ -15,10 +15,9 @@ function applyPropertiesValidators (object, schema, values = {}) {
       return;
     }
     const validator = Joi.reach(joiSchema, key);
-    if (values[key] !== undefined) {
-      validate(key, values[key], validator);
-      object[MODEL_VALUES_SYMBOL][key] = values[key];
-    }
+
+    validate(key, values[key], validator);
+    object[MODEL_VALUES_SYMBOL][key] = values[key];
 
     properties[key] = {
       get: () => object[MODEL_VALUES_SYMBOL][key],

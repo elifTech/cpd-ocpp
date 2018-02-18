@@ -7,6 +7,8 @@ var DEBUG_LIBNAME = exports.DEBUG_LIBNAME = 'ocpp-eliftech';
 
 var OCPP_PROTOCOL_1_6 = exports.OCPP_PROTOCOL_1_6 = 'ocpp1.6';
 
+var SOCKET_TIMEOUT = exports.SOCKET_TIMEOUT = 30 * 1000; // 30 sec
+
 // ## MessageType constants
 //
 // To identify the type of message one of the following Message Type Numbers MUST be used.

@@ -1,13 +1,19 @@
 import uuid from 'uuid/v4';
+import Websocket from 'ws';
 import debugFn from 'debug';
 import commands from './commands';
 import {
   DEBUG_LIBNAME,
   CALL_MESSAGE,
   CALLRESULT_MESSAGE,
-  CALLERROR_MESSAGE
+  CALLERROR_MESSAGE,
+  SOCKET_TIMEOUT
 } from './constants';
 import { getObjectValues } from './helpers';
+import OCPPError, {
+  ERROR_FORMATIONVIOLATION,
+  ERROR_INTERNALERROR
+} from './ocppError';
 
 const debug = debugFn(DEBUG_LIBNAME);
 
@@ -36,10 +42,10 @@ class Connection {
   }
 
   async onMessage (message) {
-    let messageType, messageId, commandNameOrPayload, commandPayload;
+    let messageType, messageId, commandNameOrPayload, commandPayload, errorDetails;
 
     try {
-      [messageType, messageId, commandNameOrPayload, commandPayload] = JSON.parse(message);
+      [messageType, messageId, commandNameOrPayload, commandPayload, errorDetails] = JSON.parse(message);
     } catch (err) {
       throw new Error(`Failed to parse message: "${message}", ${err.message}`);
     }
@@ -53,25 +59,54 @@ class Connection {
         if (!CommandModel) {
           throw new Error(`Unknown command ${commandNameOrPayload}`);
         }
-        const commandRequest = new CommandModel(commandPayload);
+        let commandRequest, responseData, responseObj;
+        try {
+          commandRequest = new CommandModel(commandPayload);
+        } catch (err) {
+          // send error if payload didn't pass the validation
+          return await this.sendMessage(messageId, new OCPPError(ERROR_FORMATIONVIOLATION, err.message), CALLERROR_MESSAGE);
+        }
 
-        const responseData = await this.onRequest(commandRequest);
-        const responseObj = commandRequest.createResponse(responseData);
+        try {
+          responseData = await this.onRequest(commandRequest);
+          responseObj = commandRequest.createResponse(responseData);
+        } catch (err) {
+          const error = err instanceof OCPPError ? err : new OCPPError(ERROR_INTERNALERROR, err.message, err.stack);
 
-        this.sendMessage(messageId, responseObj, CALLRESULT_MESSAGE);
+          return await this.sendMessage(messageId, error, CALLERROR_MESSAGE);
+        }
+
+        try {
+          await this.sendMessage(messageId, responseObj, CALLRESULT_MESSAGE);
+        } catch (err) {
+          debug(`Error: ${err.message}`);
+
+          await this.sendMessage(messageId, new OCPPError(ERROR_INTERNALERROR, err.message, err.stack), CALLERROR_MESSAGE);
+        }
         break;
       case CALLRESULT_MESSAGE:
-      case CALLERROR_MESSAGE:
         // response
         debug(`>> ${this.url}: ${message}`);
 
-        const responseCallback = this.requests[messageId];
+        const [responseCallback] = this.requests[messageId];
         if (!responseCallback) {
           throw new Error(`Response for unknown message ${messageId}`);
         }
         delete this.requests[messageId];
 
         responseCallback(commandNameOrPayload);
+        break;
+      case CALLERROR_MESSAGE:
+        // error response
+        debug(`>> ${this.url}: ${message}`);
+
+        const [, rejectCallback] = this.requests[messageId];
+        if (!rejectCallback) {
+          throw new Error(`Response for unknown message ${messageId}`);
+        }
+        delete this.requests[messageId];
+
+        rejectCallback(new OCPPError(commandNameOrPayload, commandPayload, errorDetails));
         break;
       default:
         throw new Error(`Wrong message type ${messageType}`);
@@ -84,7 +119,7 @@ class Connection {
 
   sendMessage (messageId, command, messageType = CALLRESULT_MESSAGE) {
     const socket = this.socket;
-
+    const self = this;
     const commandValues = getObjectValues(command);
 
     return new Promise((resolve, reject) => {
@@ -92,27 +127,41 @@ class Connection {
 
       switch (messageType) {
         case CALL_MESSAGE:
-          this.requests[messageId] = onResponse;
+          this.requests[messageId] = [onResponse, onRejectResponse];
           const commandName = command.getCommandName();
 
           messageToSend = JSON.stringify([messageType, messageId, commandName, commandValues]);
           break;
         case CALLRESULT_MESSAGE:
-        case CALLERROR_MESSAGE:
           messageToSend = JSON.stringify([messageType, messageId, commandValues]);
+          break;
+        case CALLERROR_MESSAGE:
+          const { code, message, details } = command;
+          messageToSend = JSON.stringify([messageType, messageId, code, message, details]);
           break;
       }
 
       debug(`<< ${messageToSend}`);
-      socket.send(messageToSend);
+      if (socket.readyState === Websocket.OPEN) {
+        socket.send(messageToSend);
+      } else {
+        return onRejectResponse(`Socket closed ${messageId}`);
+      }
       if (messageType !== CALL_MESSAGE) {
         resolve();
+      } else {
+        setTimeout(() => onRejectResponse(`Timeout for message ${messageId}`), SOCKET_TIMEOUT);
       }
 
       function onResponse (payload) {
         const response = command.createResponse(payload);
 
         return resolve(response);
+      }
+      function onRejectResponse(reason) {
+        self.requests[messageId] = () => {};
+        const error = reason instanceof Error ? reason : new Error(reason);
+        reject(error);
       }
     });
   }

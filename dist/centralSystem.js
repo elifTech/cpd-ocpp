@@ -143,6 +143,10 @@ var CentralSystem = function () {
         return _this2.onRequest(connection, command);
       };
 
+      socket.on('close', function (err) {
+        var index = _this2.clients.indexOf(connection);
+        _this2.clients.splice(index, 1);
+      });
       this.clients.push(connection);
     }
   }, {

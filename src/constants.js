@@ -2,6 +2,8 @@ export const DEBUG_LIBNAME = 'ocpp-eliftech';
 
 export const OCPP_PROTOCOL_1_6 = 'ocpp1.6';
 
+export const SOCKET_TIMEOUT = 30 * 1000; // 30 sec
+
 // ## MessageType constants
 //
 // To identify the type of message one of the following Message Type Numbers MUST be used.
