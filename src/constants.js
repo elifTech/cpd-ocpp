@@ -1,3 +1,7 @@
+export const DEBUG_LIBNAME = 'ocpp-eliftech';
+
+export const OCPP_PROTOCOL_1_6 = 'ocpp1.6';
+
 // ## MessageType constants
 //
 // To identify the type of message one of the following Message Type Numbers MUST be used.

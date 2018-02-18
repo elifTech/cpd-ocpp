@@ -4,7 +4,7 @@ import Enjoi from 'enjoi';
 const MODEL_VALUES_SYMBOL = Symbol('modelValues');
 
 export
-function applyPropertiesValidators (object, schema, values) {
+function applyPropertiesValidators (object, schema, values = {}) {
   const joiSchema = new Enjoi(schema);
 
   object[MODEL_VALUES_SYMBOL] = {};
@@ -15,8 +15,10 @@ function applyPropertiesValidators (object, schema, values) {
       return;
     }
     const validator = Joi.reach(joiSchema, key);
-    validate(key, values[key], validator);
-    object[MODEL_VALUES_SYMBOL][key] = values[key];
+    if (values[key] !== undefined) {
+        validate(key, values[key], validator);
+        object[MODEL_VALUES_SYMBOL][key] = values[key];
+    }
 
     properties[key] = {
       get: () => object[MODEL_VALUES_SYMBOL][key],
@@ -32,11 +34,10 @@ function applyPropertiesValidators (object, schema, values) {
 
   Object.defineProperties(object, properties);
 
-  async function validate (fieldName, value, schema) {
-    try {
-      await Joi.validate(value, schema);
-    } catch (err) {
-      throw new Error(`Invalid value ${value} for field ${fieldName}`);
+  function validate (fieldName, value, schema) {
+    const { error } = Joi.validate(value, schema);
+    if (error !== null) {
+      throw new Error(`Invalid value "${value}" for field ${fieldName}`);
     }
   }
 }

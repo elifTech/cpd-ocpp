@@ -1,6 +1,6 @@
 # Open Charge Point Protocol 1.6
 
-This repository contain abstraction layer for easy work with OCPP.
+This repository contain abstraction layer for easy work with OCPP and validate input and output requests.
 Currently implemented only version 1.6 JSON. Whereas OCPP2.0 will support only JSON have no plans to implement SOAP.
 
 ## Installation

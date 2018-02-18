@@ -1,5 +1,5 @@
-import OCPPClient from './client';
-import OCPPServer from './server';
+import OCPPChargePoint from './chargePoint';
+import OCPPCentralSystem from './centralSystem';
 import OCPPCommands from './commands';
 
-export { OCPPClient, OCPPServer, OCPPCommands };
+export { OCPPChargePoint, OCPPCentralSystem, OCPPCommands };
