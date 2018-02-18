@@ -1,20 +1,20 @@
 import WebSocket from 'ws';
 import debugFn from 'debug';
 import { Connection } from './connection';
-import { DEBUG_LIBNAME } from './constants';
 import {
+  DEBUG_LIBNAME,
   OCPP_PROTOCOL_1_6
 } from './constants';
 
 const debug = debugFn(DEBUG_LIBNAME);
 
 export default class CentralSystem {
-  constructor(options) {
+  constructor (options) {
     this.options = options || {};
     this.clients = [];
   }
 
-  listen(port = 9220, host = null) {
+  listen (port = 9220, host = null) {
     this.port = port;
 
     const validateConnection = this.options.validateConnection || (() => true);
@@ -33,7 +33,7 @@ export default class CentralSystem {
 
         debug(`Request for connect "${info.req.url}" (${info.req.headers['sec-websocket-protocol']}) - ${isAccept ? 'Valid identifier' : 'Invalid identifier'}`);
 
-        cb(isAccept, 404, 'Central System does not recognize the charge point identifier in the URL path')
+        cb(isAccept, 404, 'Central System does not recognize the charge point identifier in the URL path');
       },
       ...(this.options.wsOptions || {})
     };
@@ -41,20 +41,18 @@ export default class CentralSystem {
     this.server = new WebSocket.Server(wsOptions);
 
     this.server.on('error', (ws, req) => {
-      console.info(ws, req)
+      console.info(ws, req);
     });
 
     this.server.on('upgrade', (ws, req) => {
-
       console.info(req);
-
     });
     this.server.on('connection', (ws, req) => this.onNewConnection(ws, req));
 
     debug(`Listen on ${host || 'default host'}:${port}`);
   }
 
-  onNewConnection(socket, req) {
+  onNewConnection (socket, req) {
     socket.on('error', (err) => {
       console.info(err, socket.readyState);
     });
@@ -74,7 +72,7 @@ export default class CentralSystem {
     this.clients.push(connection);
   }
 
-  async onRequest(connection, command) {
+  async onRequest (connection, command) {
     // implementation
   }
 }

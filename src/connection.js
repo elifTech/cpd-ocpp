@@ -12,9 +12,8 @@ import { getObjectValues } from './helpers';
 const debug = debugFn(DEBUG_LIBNAME);
 
 export
-class Connection
-{
-  constructor(socket, req = null) {
+class Connection {
+  constructor (socket, req = null) {
     this.socket = socket;
     this.req = req;
     this.requests = {};
@@ -36,7 +35,7 @@ class Connection
     });
   }
 
-  async onMessage(message) {
+  async onMessage (message) {
     let messageType, messageId, commandNameOrPayload, commandPayload;
 
     try {
@@ -45,7 +44,7 @@ class Connection
       throw new Error(`Failed to parse message: "${message}", ${err.message}`);
     }
 
-    switch(messageType) {
+    switch (messageType) {
       case CALL_MESSAGE:
         // request
         debug(`>> ${this.url}: ${message}`);
@@ -79,11 +78,11 @@ class Connection
     }
   }
 
-  send(command, messageType = CALL_MESSAGE) {
-    return this.sendMessage(uuid(), command, messageType)
+  send (command, messageType = CALL_MESSAGE) {
+    return this.sendMessage(uuid(), command, messageType);
   }
 
-  sendMessage(messageId, command, messageType = CALLRESULT_MESSAGE) {
+  sendMessage (messageId, command, messageType = CALLRESULT_MESSAGE) {
     const socket = this.socket;
 
     const commandValues = getObjectValues(command);
@@ -110,7 +109,7 @@ class Connection
         resolve();
       }
 
-      function onResponse(payload) {
+      function onResponse (payload) {
         const response = command.createResponse(payload);
 
         return resolve(response);
@@ -118,7 +117,7 @@ class Connection
     });
   }
 
-  onRequest(request) {
+  onRequest (request) {
 
   }
 }

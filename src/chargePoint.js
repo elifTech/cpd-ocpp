@@ -17,11 +17,11 @@ export default class ChargePoint {
    * @param {String} options.centralSystemUrl The url where to connect
    * @param {String} options.reconnectInterval The number of milliseconds to delay before attempting to reconnect (default: 5 minutes)
    */
-  constructor(options) {
+  constructor (options) {
     this.options = options;
   }
 
-  connect() {
+  connect () {
     debug(`Try connect to ${this.options.centralSystemUrl}`);
 
     let reconnectTimer;
@@ -36,7 +36,7 @@ export default class ChargePoint {
 
       ws.on('upgrade', (res) => {
         if (!res.headers['sec-websocket-protocol']) {
-          return reject(`Server doesn't support protocol ${OCPP_PROTOCOL_1_6}`);
+          return reject(new Error(`Server doesn't support protocol ${OCPP_PROTOCOL_1_6}`));
         }
       });
 
@@ -57,7 +57,7 @@ export default class ChargePoint {
       ws.on('error', reject);
     });
 
-    function nextReconnectAttempt() {
+    function nextReconnectAttempt () {
       if (reconnectTimer) {
         clearInterval(reconnectTimer);
         reconnectTimer = null;
@@ -72,13 +72,13 @@ export default class ChargePoint {
     }
   }
 
-  send(command) {
+  send (command) {
     if (!this.connection) {
       return false;
     }
     return this.connection.send(command);
   }
 
-  onRequest(command) {
+  onRequest (command) {
   }
 }
