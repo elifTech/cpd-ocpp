@@ -195,12 +195,11 @@ var Connection = exports.Connection = function () {
       var commandValues = (0, _helpers.getObjectValues)(command);
 
       return new _promise2.default(function (resolve, reject) {
-        _this2.requests[messageId] = onResponse;
-
         var messageToSend = void 0;
 
         switch (messageType) {
           case _constants.CALL_MESSAGE:
+            _this2.requests[messageId] = onResponse;
             var commandName = command.getCommandName();
 
             messageToSend = (0, _stringify2.default)([messageType, messageId, commandName, commandValues]);
@@ -213,6 +212,9 @@ var Connection = exports.Connection = function () {
 
         debug('<< ' + messageToSend);
         socket.send(messageToSend);
+        if (messageType !== _constants.CALL_MESSAGE) {
+          resolve();
+        }
 
         function onResponse(payload) {
           var response = command.createResponse(payload);

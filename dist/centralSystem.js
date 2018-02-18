@@ -112,7 +112,6 @@ var CentralSystem = function () {
       });
 
       this.server.on('upgrade', function (ws, req) {
-
         console.info(req);
       });
       this.server.on('connection', function (ws, req) {

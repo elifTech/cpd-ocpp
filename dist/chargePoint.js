@@ -73,7 +73,7 @@ var ChargePoint = function () {
 
         ws.on('upgrade', function (res) {
           if (!res.headers['sec-websocket-protocol']) {
-            return reject('Server doesn\'t support protocol ' + _constants.OCPP_PROTOCOL_1_6);
+            return reject(new Error('Server doesn\'t support protocol ' + _constants.OCPP_PROTOCOL_1_6));
           }
         });
 
