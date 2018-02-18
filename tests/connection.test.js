@@ -1,3 +1,4 @@
+import WebSocket from 'ws';
 import uuid from 'uuid/v4';
 
 import { Connection } from '../src/connection';
@@ -72,13 +73,17 @@ describe('onMessage', () => {
 });
 
 describe('sendMessage', () => {
-  test('Send message and wait for response', async () => {
+  test('Send response message', async () => {
     const socket = {
       on: jest.fn(),
-      send: jest.fn()
+      send: jest.fn(),
+      readyState: WebSocket.OPEN
     };
     const conn = new Connection(socket);
-    const response = (new BootNotification()).createResponse({
+    const response = (new BootNotification({
+      chargePointVendor: 'BrandX',
+      chargePointModel: 'ModelY'
+    })).createResponse({
       status: STATUS_ACCEPTED,
       currentTime: new Date().toISOString(),
       interval: 60
@@ -92,7 +97,8 @@ describe('sendMessage', () => {
   test('Send message and wait for response', async () => {
     const socket = {
       on: jest.fn(),
-      send: jest.fn()
+      send: jest.fn(),
+      readyState: WebSocket.OPEN
     };
     const conn = new Connection(socket);
     const command = new BootNotification({
@@ -105,7 +111,7 @@ describe('sendMessage', () => {
     const promise = conn.sendMessage(messageId, command, CALL_MESSAGE);
     // save callback for request
     expect(conn.requests).toEqual({
-      [ messageId ]: expect.any(Function)
+      [ messageId ]: [expect.any(Function), expect.any(Function)]
     });
     expect(socket.send).toBeCalledWith(`[2,"${messageId}","BootNotification",{"chargePointVendor":"BrandX","chargePointModel":"ModelY"}]`);
 
