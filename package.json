@@ -8,7 +8,8 @@
     "build": "rimraf dist && cross-env NODE_ENV=production babel src -d dist -s",
     "test": "cross-env NODE_ENV=test jest --forceExit",
     "cover": "npm run test -- --coverage",
-    "lint": "eslint --fix src"
+    "lint": "eslint --fix src",
+    "heroku-prebuild": "babel examples -d examples-dist -s"
   },
   "repository": {
     "type": "git",

@@ -1,6 +1,6 @@
-import { OCPPCentralSystem, OCPPCommands } from '../src';
-import * as AuthorizeConst from '../src/commands/Authorize';
-import * as BootNotificationConst from '../src/commands/BootNotification';
+import { OCPPCentralSystem, OCPPCommands } from '../dist';
+import * as AuthorizeConst from '../dist/commands/Authorize';
+import * as BootNotificationConst from '../dist/commands/BootNotification';
 
 process.on('uncaughtException', function (err) {
   console.log('Caught exception: ' + err);
@@ -13,7 +13,7 @@ const server = new OCPPCentralSystem({
   validateConnection
 });
 
-server.listen();
+server.listen(process.env.PORT || 9220);
 
 server.onRequest = async function (connection, command) {
   console.info(`New command from ${connection.url}`);

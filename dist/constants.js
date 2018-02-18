@@ -1,8 +1,12 @@
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+var DEBUG_LIBNAME = exports.DEBUG_LIBNAME = 'ocpp-eliftech';
+
+var OCPP_PROTOCOL_1_6 = exports.OCPP_PROTOCOL_1_6 = 'ocpp1.6';
+
 // ## MessageType constants
 //
 // To identify the type of message one of the following Message Type Numbers MUST be used.

@@ -23,8 +23,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var RESPONSE_SCHEMA_SYMBOL = (0, _symbol2.default)('responseSchema');
 
 var BaseCommand = function () {
-  function BaseCommand(requestSchema, responseSchema) {
-    var values = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  function BaseCommand(requestSchema, responseSchema, values) {
     (0, _classCallCheck3.default)(this, BaseCommand);
 
     this[RESPONSE_SCHEMA_SYMBOL] = responseSchema;
@@ -36,11 +35,6 @@ var BaseCommand = function () {
     key: 'getCommandName',
     value: function getCommandName() {
       return this.constructor.name;
-    }
-  }, {
-    key: 'getCommandValues',
-    value: function getCommandValues() {
-      return (0, _helpers.getObjectValues)(this);
     }
   }, {
     key: 'createResponse',

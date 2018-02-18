@@ -1,4 +1,4 @@
-import { OCPPChargePoint, OCPPCommands } from '../src';
+import { OCPPChargePoint, OCPPCommands } from '../dist';
 
 process.on('uncaughtException', function (err) {
   console.log('Caught exception: ' + err);
