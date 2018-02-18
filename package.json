@@ -9,7 +9,7 @@
     "test": "cross-env NODE_ENV=test jest --forceExit",
     "cover": "npm run test -- --coverage",
     "lint": "eslint --fix src",
-    "heroku-prebuild": "babel examples -d examples-dist -s"
+    "heroku-prebuild": "npm i --dev && npm i && babel examples -d examples-dist -s"
   },
   "repository": {
     "type": "git",
