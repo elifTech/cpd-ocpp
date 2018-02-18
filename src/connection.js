@@ -89,12 +89,11 @@ class Connection
     const commandValues = getObjectValues(command);
 
     return new Promise((resolve, reject) => {
-      this.requests[messageId] = onResponse;
-
       let messageToSend;
 
       switch (messageType) {
         case CALL_MESSAGE:
+          this.requests[messageId] = onResponse;
           const commandName = command.getCommandName();
 
           messageToSend = JSON.stringify([messageType, messageId, commandName, commandValues]);
@@ -107,6 +106,9 @@ class Connection
 
       debug(`<< ${messageToSend}`);
       socket.send(messageToSend);
+      if (messageType !== CALL_MESSAGE) {
+        resolve();
+      }
 
       function onResponse(payload) {
         const response = command.createResponse(payload);

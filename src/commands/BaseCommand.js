@@ -15,7 +15,7 @@ class BaseCommand {
   }
 
   createResponse (payload) {
-    const response = new function () {}();
+    const response = new function () {};
 
     applyPropertiesValidators(response, this[RESPONSE_SCHEMA_SYMBOL], payload);
 
