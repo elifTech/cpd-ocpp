@@ -1,6 +1,10 @@
-import { OCPPCentralSystem, OCPPCommands } from '../dist';
-import * as AuthorizeConst from '../dist/commands/Authorize';
-import * as BootNotificationConst from '../dist/commands/BootNotification';
+import http from 'http';
+import url from 'url';
+import fs from 'fs';
+import querystring from 'querystring';
+import { createServer } from './сentralSystem';
+
+//var fileServer = new(require('node-static')).Server('.');
 
 process.on('uncaughtException', function (err) {
   console.log('Caught exception: ' + err);
@@ -9,40 +13,55 @@ process.on('unhandledRejection', function (reason, p) {
   console.log("Possibly Unhandled Rejection at: Promise ", p, " reason: ", reason);
 });
 
-const server = new OCPPCentralSystem({
-  validateConnection
-});
+const server = http.createServer(accept);
+const centralSystem = createServer(server);
 
 server.listen(process.env.PORT || 9220);
 
-server.onRequest = async function (connection, command) {
-  console.info(`New command from ${connection.url}`);
+function onDigits(req, res) {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream; charset=utf-8',
+    'Cache-Control': 'no-cache'
+  });
 
-  switch (true) {
-    case command instanceof OCPPCommands.BootNotification:
-      return {
-        status: BootNotificationConst.STATUS_ACCEPTED,
-        currentTime: new Date().toISOString(),
-        interval: 60
-      };
+  console.info(centralSystem.clients);
 
-    case command instanceof OCPPCommands.Authorize:
-      return {
-        idTagInfo: {
-          status: AuthorizeConst.STATUS_ACCEPTED,
-          expiryDate: new Date().toISOString(),
-          parentIdTag: 'test'
-        }
-      };
+  const timer = setInterval(write, 1000);
+  write();
 
-    case command instanceof OCPPCommands.Heartbeat:
-      return {
-        currentTime: new Date().toISOString()
-      };
+  function write() {
+    const data = centralSystem.clients.map(client => {
+      return client.info;
+    });
+    res.write(`data: ${JSON.stringify(data)}\n\n`);
   }
-};
+}
 
-function validateConnection(url) {
-  console.info(url);
-  return true;
+async function accept(req, res, next) {
+
+  if (req.url === '/status') {
+    onDigits(req, res);
+    centralSystem.onStatusUpdate = () => onDigits(req, res);
+    return;
+  }
+  let match;
+  if (match = req.url.match(/\/connector\/(\d+)\/(\d+)/)) {
+    const client = centralSystem.clients[+match[1]];
+    if (client) {
+      const result = await centralSystem.toggleChargePoint(client, +match[ 2 ]);
+      res.write(JSON.stringify({}));
+    }
+    res.end();
+    return;
+  }
+
+  fs.readFile(`${__dirname}/index.html`, (err, file) => {
+    if (err) {
+      return next(err);
+    }
+
+    // res.set('Content-type', 'text/html');
+    res.write(file);
+    res.end();
+  });
 }

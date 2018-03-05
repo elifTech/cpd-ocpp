@@ -1,5 +1,6 @@
 import WebSocket from 'ws';
 import debugFn from 'debug';
+import Commands from './commands';
 import { Connection } from './connection';
 
 import {
@@ -16,8 +17,11 @@ export default class ChargePoint {
    * @param {Object} options Configuration options
    * @param {String} options.centralSystemUrl The url where to connect
    * @param {String} options.reconnectInterval The number of milliseconds to delay before attempting to reconnect (default: 5 minutes)
+   * @param {String} options.connectors Array of virtual connectors
    */
   constructor (options) {
+    options.connectors = options.connectors || [];
+
     this.options = options;
   }
 
@@ -80,5 +84,23 @@ export default class ChargePoint {
   }
 
   onRequest (command) {
+  }
+
+  getConnectors () {
+    return this.options.connectors;
+  }
+
+  async sendCurrentStatus() {
+    const promises = this.getConnectors().map(async (connector) => {
+      const status = {
+        timestamp: new Date().toISOString(),
+        ...connector
+      };
+      const statusCommand = new Commands.StatusNotification(status);
+
+      await this.send(statusCommand)
+    });
+
+    return await Promise.all(promises);
   }
 }

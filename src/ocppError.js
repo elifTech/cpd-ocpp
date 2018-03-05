@@ -30,12 +30,14 @@ export const ERROR_GENERICERROR = 'GenericError';
 
 export default class OCPPError extends Error {
   constructor(code, message, details) {
-    super(`${code}: ${message}`);
+    super(message);
 
     this.code = code;
     this.message = message;
     this.details = details;
 
-    Error.captureStackTrace(this, OCPPError);
+    Object.setPrototypeOf(this, OCPPError.prototype); // for instanceof
+
+    Error.captureStackTrace ? (Error.captureStackTrace(this, this.constructor)) : (this.stack = (new Error()).stack);
   }
 }

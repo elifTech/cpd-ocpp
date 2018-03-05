@@ -95,7 +95,7 @@ var Connection = exports.Connection = function () {
     key: 'onMessage',
     value: function () {
       var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(message) {
-        var messageType, messageId, commandNameOrPayload, commandPayload, errorDetails, _JSON$parse, _JSON$parse2, CommandModel, commandRequest, responseData, responseObj, error, _requests$messageId, responseCallback, _requests$messageId2, rejectCallback;
+        var messageType, messageId, commandNameOrPayload, commandPayload, errorDetails, _JSON$parse, _JSON$parse2, CommandModel, commandRequest, responseData, responseObj, _requests$messageId, responseCallback, _requests$messageId2, rejectCallback;
 
         return _regenerator2.default.wrap(function _callee$(_context) {
           while (1) {
@@ -120,7 +120,7 @@ var Connection = exports.Connection = function () {
 
               case 14:
                 _context.t1 = messageType;
-                _context.next = _context.t1 === _constants.CALL_MESSAGE ? 17 : _context.t1 === _constants.CALLRESULT_MESSAGE ? 55 : _context.t1 === _constants.CALLERROR_MESSAGE ? 62 : 69;
+                _context.next = _context.t1 === _constants.CALL_MESSAGE ? 17 : _context.t1 === _constants.CALLRESULT_MESSAGE ? 53 : _context.t1 === _constants.CALLERROR_MESSAGE ? 60 : 67;
                 break;
 
               case 17:
@@ -148,7 +148,7 @@ var Connection = exports.Connection = function () {
                 _context.prev = 26;
                 _context.t2 = _context['catch'](22);
                 _context.next = 30;
-                return this.sendMessage(messageId, new _ocppError2.default(_ocppError.ERROR_FORMATIONVIOLATION, _context.t2.message), _constants.CALLERROR_MESSAGE);
+                return this.sendError(new _ocppError2.default(_ocppError.ERROR_FORMATIONVIOLATION, _context.t2.message));
 
               case 30:
                 return _context.abrupt('return', _context.sent);
@@ -162,87 +162,83 @@ var Connection = exports.Connection = function () {
                 responseData = _context.sent;
 
                 responseObj = commandRequest.createResponse(responseData);
-                _context.next = 44;
+                _context.next = 43;
                 break;
 
               case 38:
                 _context.prev = 38;
                 _context.t3 = _context['catch'](31);
-                error = _context.t3 instanceof _ocppError2.default ? _context.t3 : new _ocppError2.default(_ocppError.ERROR_INTERNALERROR, _context.t3.message, _context.t3.stack);
-                _context.next = 43;
-                return this.sendMessage(messageId, error, _constants.CALLERROR_MESSAGE);
+                _context.next = 42;
+                return this.sendError(_context.t3);
 
-              case 43:
+              case 42:
                 return _context.abrupt('return', _context.sent);
 
-              case 44:
-                _context.prev = 44;
-                _context.next = 47;
+              case 43:
+                _context.prev = 43;
+                _context.next = 46;
                 return this.sendMessage(messageId, responseObj, _constants.CALLRESULT_MESSAGE);
 
-              case 47:
-                _context.next = 54;
+              case 46:
+                _context.next = 52;
                 break;
 
-              case 49:
-                _context.prev = 49;
-                _context.t4 = _context['catch'](44);
+              case 48:
+                _context.prev = 48;
+                _context.t4 = _context['catch'](43);
+                _context.next = 52;
+                return this.sendError(_context.t4);
 
-                debug('Error: ' + _context.t4.message);
+              case 52:
+                return _context.abrupt('break', 68);
 
-                _context.next = 54;
-                return this.sendMessage(messageId, new _ocppError2.default(_ocppError.ERROR_INTERNALERROR, _context.t4.message, _context.t4.stack), _constants.CALLERROR_MESSAGE);
-
-              case 54:
-                return _context.abrupt('break', 70);
-
-              case 55:
+              case 53:
                 // response
                 debug('>> ' + this.url + ': ' + message);
 
                 _requests$messageId = (0, _slicedToArray3.default)(this.requests[messageId], 1), responseCallback = _requests$messageId[0];
 
                 if (responseCallback) {
-                  _context.next = 59;
+                  _context.next = 57;
                   break;
                 }
 
                 throw new Error('Response for unknown message ' + messageId);
 
-              case 59:
+              case 57:
                 delete this.requests[messageId];
 
                 responseCallback(commandNameOrPayload);
-                return _context.abrupt('break', 70);
+                return _context.abrupt('break', 68);
 
-              case 62:
+              case 60:
                 // error response
                 debug('>> ' + this.url + ': ' + message);
 
                 _requests$messageId2 = (0, _slicedToArray3.default)(this.requests[messageId], 2), rejectCallback = _requests$messageId2[1];
 
                 if (rejectCallback) {
-                  _context.next = 66;
+                  _context.next = 64;
                   break;
                 }
 
                 throw new Error('Response for unknown message ' + messageId);
 
-              case 66:
+              case 64:
                 delete this.requests[messageId];
 
                 rejectCallback(new _ocppError2.default(commandNameOrPayload, commandPayload, errorDetails));
-                return _context.abrupt('break', 70);
+                return _context.abrupt('break', 68);
 
-              case 69:
+              case 67:
                 throw new Error('Wrong message type ' + messageType);
 
-              case 70:
+              case 68:
               case 'end':
                 return _context.stop();
             }
           }
-        }, _callee, this, [[1, 11], [22, 26], [31, 38], [44, 49]]);
+        }, _callee, this, [[1, 11], [22, 26], [31, 38], [43, 48]]);
       }));
 
       function onMessage(_x2) {
@@ -257,6 +253,15 @@ var Connection = exports.Connection = function () {
       var messageType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _constants.CALL_MESSAGE;
 
       return this.sendMessage((0, _v2.default)(), command, messageType);
+    }
+  }, {
+    key: 'sendError',
+    value: function sendError(err) {
+      debug('Error: ' + err.message);
+
+      var error = err instanceof _ocppError2.default ? err : new _ocppError2.default(_ocppError.ERROR_INTERNALERROR, err.message);
+
+      return this.sendMessage((0, _v2.default)(), error, _constants.CALLERROR_MESSAGE);
     }
   }, {
     key: 'sendMessage',

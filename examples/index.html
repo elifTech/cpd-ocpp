@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <title>Document</title>
+</head>
+<body>
+
+<div id="app">
+
+  <div class="station" v-for="(station, n) in stations">
+
+    <div class="station-title">
+
+      {{station.chargeBoxSerialNumber}}
+
+      <!--<div class="status">Connecting...</div>-->
+      <!--<div class="status status-offline">Offline</div>-->
+      <div class="status status-online">Online</div>
+
+    </div>
+
+
+    <div class="connector" v-for="connector in station.connectors">
+
+      <a href="" @click.prevent="toggleConnector(n, connector)">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="64px" height="64px" viewBox="-2 -2 64 64">
+          <path fill-rule="evenodd"  :fill="connector.status !== 'Available' ? '#7ab342' : '#f04d3a'"
+                d="M45.405,13.386 L51.285,19.266 L43.016,27.535 L49.005,33.525 L38.525,44.005 L38.349,43.830 C34.411,48.801 28.334,52.000 21.500,52.000 C9.626,52.000 -0.000,42.374 -0.000,30.500 C-0.000,23.666 3.199,17.589 8.170,13.651 L7.995,13.475 L18.475,2.995 L23.635,8.155 L31.405,0.386 L37.285,6.266 L29.573,13.978 L37.193,21.598 L45.405,13.386 Z"/>
+        </svg>
+      </a>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+
+<style>
+  body {
+    padding: 30px 40px;
+  }
+  .station {
+    background: #222;
+    border-radius: 5px;
+    width: 200px;
+    height: 400px;
+    position: relative;
+    padding-top: 120px;
+  }
+  .station-title {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    right: 30px;
+    height: 60px;
+    z-index: 5;
+    line-height: 30px;
+  }
+  .status {
+    font-weight: bold;
+    color: #feba19;
+  }
+  .status-online {
+    color: #7ab342;
+  }
+  .status-offline {
+    color: #f04d3a;
+  }
+  .station:before {
+    background: #fff;
+    border-radius: 5px;
+    height: 80px;
+    left: 20px;
+    right: 20px;
+    top: 20px;
+    position: absolute;
+    z-index: 2;
+    content: ' ';
+  }
+  .station:after {
+    background: #222;
+    border-radius: 5px;
+    height: 40px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    position: absolute;
+    z-index: 2;
+    content: ' ';
+  }
+  .station .connector {
+    width: 96px;
+    height: 96px;
+    border: 1px solid #fff;
+    border-radius: 500px;
+    padding: 19px;
+    margin: 20px auto;
+  }
+  .animated {
+    stroke-dasharray: 15 3;
+    animation: dash 5s linear infinite;
+  }
+  @keyframes dash {
+    to {
+      stroke-dashoffset: 100;
+    }
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+<script>
+  var eventSource = new EventSource("/status");
+  var app = new Vue({
+    el: '#app',
+    data: {
+      stations: []
+    },
+    methods: {
+      toggleConnector(n, connector) {
+        fetch('/connector/' + n + '/' + connector.connectorId, {
+          method: 'POST',
+        }).then(function(response) {
+          return response.json();
+        }).then(function(data) {
+          console.info(data);
+        })
+      }
+    }
+  });
+  eventSource.onmessage = function(e) {
+    app.stations = JSON.parse(e.data);
+  };
+</script>
+</body>
+</html>

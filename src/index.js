@@ -1,5 +1,7 @@
-import OCPPChargePoint from './chargePoint';
-import OCPPCentralSystem from './centralSystem';
+import ChargePoint from './chargePoint';
+import CentralSystem from './centralSystem';
+import Connector from './connector';
+
 import OCPPCommands from './commands';
 
-export { OCPPChargePoint, OCPPCentralSystem, OCPPCommands };
+export { ChargePoint, CentralSystem, Connector, OCPPCommands };

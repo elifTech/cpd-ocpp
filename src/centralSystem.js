@@ -5,6 +5,7 @@ import {
   DEBUG_LIBNAME,
   OCPP_PROTOCOL_1_6
 } from './constants';
+import CentralSystemClient from './centralSystemClient';
 
 const debug = debugFn(DEBUG_LIBNAME);
 
@@ -67,16 +68,18 @@ export default class CentralSystem {
 
     const connection = new Connection(socket, req);
 
-    connection.onRequest = (command) => this.onRequest(connection, command);
+    const client = new CentralSystemClient(connection);
+
+    connection.onRequest = (command) => this.onRequest(client, command);
 
     socket.on('close', (err) => {
-      const index = this.clients.indexOf(connection);
+      const index = this.clients.indexOf(client);
       this.clients.splice(index, 1);
     });
-    this.clients.push(connection);
+    this.clients.push(client);
   }
 
-  async onRequest (connection, command) {
+  async onRequest (client, command) {
     // implementation
   }
 }

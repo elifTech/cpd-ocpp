@@ -64,24 +64,20 @@ class Connection {
           commandRequest = new CommandModel(commandPayload);
         } catch (err) {
           // send error if payload didn't pass the validation
-          return await this.sendMessage(messageId, new OCPPError(ERROR_FORMATIONVIOLATION, err.message), CALLERROR_MESSAGE);
+          return await this.sendError(messageId, new OCPPError(ERROR_FORMATIONVIOLATION, err.message));
         }
 
         try {
           responseData = await this.onRequest(commandRequest);
           responseObj = commandRequest.createResponse(responseData);
         } catch (err) {
-          const error = err instanceof OCPPError ? err : new OCPPError(ERROR_INTERNALERROR, err.message, err.stack);
-
-          return await this.sendMessage(messageId, error, CALLERROR_MESSAGE);
+          return await this.sendError(messageId, err);
         }
 
         try {
           await this.sendMessage(messageId, responseObj, CALLRESULT_MESSAGE);
         } catch (err) {
-          debug(`Error: ${err.message}`);
-
-          await this.sendMessage(messageId, new OCPPError(ERROR_INTERNALERROR, err.message, err.stack), CALLERROR_MESSAGE);
+          await this.sendError(messageId, err);
         }
         break;
       case CALLRESULT_MESSAGE:
@@ -100,10 +96,10 @@ class Connection {
         // error response
         debug(`>> ${this.url}: ${message}`);
 
-        const [, rejectCallback] = this.requests[messageId];
-        if (!rejectCallback) {
+        if (!this.requests[messageId]) {
           throw new Error(`Response for unknown message ${messageId}`);
         }
+        const [, rejectCallback] = this.requests[messageId];
         delete this.requests[messageId];
 
         rejectCallback(new OCPPError(commandNameOrPayload, commandPayload, errorDetails));
@@ -115,6 +111,14 @@ class Connection {
 
   send (command, messageType = CALL_MESSAGE) {
     return this.sendMessage(uuid(), command, messageType);
+  }
+
+  sendError (messageId, err) {
+    debug(`Error: ${err.message}`);
+
+    const error = err instanceof OCPPError ? err : new OCPPError(ERROR_INTERNALERROR, err.message);
+
+    return this.sendMessage(messageId, error, CALLERROR_MESSAGE);
   }
 
   sendMessage (messageId, command, messageType = CALLRESULT_MESSAGE) {
@@ -160,7 +164,7 @@ class Connection {
       }
       function onRejectResponse(reason) {
         self.requests[messageId] = () => {};
-        const error = reason instanceof Error ? reason : new Error(reason);
+        const error = reason instanceof OCPPError ? reason : new Error(reason);
         reject(error);
       }
     });

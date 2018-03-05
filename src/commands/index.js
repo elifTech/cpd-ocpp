@@ -57,3 +57,40 @@ export default {
   UnlockConnector,
   UpdateFirmware
 };
+
+export
+const CHARGE_POINT_COMMANDS = {
+  Authorize,
+  BootNotification,
+  DataTransfer,
+  DiagnosticsStatusNotification,
+  FirmwareStatusNotification,
+  Heartbeat,
+  MeterValues,
+  StartTransaction,
+  StatusNotification,
+  StopTransaction
+};
+
+export
+const CENTRAL_SYSTEM_COMMANDS = {
+  CancelReservation,
+  ChangeAvailability,
+  ChangeConfiguration,
+  ClearCache,
+  ClearChargingProfile,
+  DataTransfer,
+  GetCompositeSchedule,
+  GetConfiguration,
+  GetDiagnostics,
+  GetLocalListVersion,
+  RemoteStartTransaction,
+  RemoteStopTransaction,
+  ReserveNow,
+  Reset,
+  SendLocalList,
+  SetChargingProfile,
+  TriggerMessage,
+  UnlockConnector,
+  UpdateFirmware
+};

@@ -1,6 +1,6 @@
 {
   "name": "ocpp-eliftech",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "OCPP 1.6: Open Charge Point Protocol",
   "main": "dist/index.js",
   "scripts": {

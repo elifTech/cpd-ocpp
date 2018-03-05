@@ -32,9 +32,13 @@ var _debug = require('debug');
 
 var _debug2 = _interopRequireDefault(_debug);
 
+var _commands = require('./commands');
+
 var _connection = require('./connection');
 
 var _constants = require('./constants');
+
+var _index = require('./index');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 

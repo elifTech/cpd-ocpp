@@ -1,4 +1,7 @@
-import { OCPPChargePoint, OCPPCommands } from '../dist';
+import { ChargePoint, Connector, OCPPCommands } from '../src';
+import * as BootNotificationConst from "../src/commands/BootNotification";
+import * as StatusNotificationConst from "../src/commands/StatusNotification";
+import * as RemoteStartTransactionConst from "../src/commands/RemoteStartTransaction";
 
 process.on('uncaughtException', function (err) {
   console.log('Caught exception: ' + err);
@@ -8,23 +11,35 @@ process.on('unhandledRejection', function (reason, p) {
 });
 
 async function run() {
-  const client = new OCPPChargePoint({
-    centralSystemUrl: `http://localhost:9220/webServices/ocpp/CP${Math.floor(Math.random() * 9999)}`
+  const connector1 = new Connector(1);
+  const connector2 = new Connector(2);
+
+  const client = new ChargePoint({
+    centralSystemUrl: `http://localhost:9220/webServices/ocpp/CP${Math.floor(Math.random() * 9999)}`,
+    // centralSystemUrl: `https://ocpp-example.herokuapp.com/webServices/ocpp/CP${Math.floor(Math.random() * 9999)}`,
+    connectors: [
+      connector1,
+      connector2
+    ]
   });
 
   try {
     await client.connect();
 
     client.onRequest = async (command) => {
-      console.info('onRequest', command);
+      switch (true) {
+        case command instanceof OCPPCommands.RemoteStartTransaction:
+          setTimeout(() => startTransaction(command), 1);
+          return {
+            status: RemoteStartTransactionConst.STATUS_ACCEPTED
+          };
+        case command instanceof OCPPCommands.RemoteStopTransaction:
+          setTimeout(() => stopTransaction(command), 1);
+          return {
+            status: RemoteStartTransactionConst.STATUS_ACCEPTED
+          };
+      }
     };
-
-    setInterval(async () => {
-      const heartbeat = new OCPPCommands.Heartbeat();
-
-      let answer = await client.send(heartbeat);
-      console.info(answer);
-    }, 3000);
 
     const boot = new OCPPCommands.BootNotification({
       chargePointVendor: 'BrandX',
@@ -36,15 +51,55 @@ async function run() {
     let answer = await client.send(boot);
     console.info(answer);
 
-    const command = new OCPPCommands.Authorize({
-      idTag: 'Test'
+    await client.sendCurrentStatus();
+  } catch (err) {
+    console.error('--- Err', err);
+  }
+
+  async function startTransaction({ connectorId }) {
+    const idTag = 'test';
+    const authCommand = new OCPPCommands.Authorize({
+      idTag
     });
 
-    answer = await client.send(command);
-    console.info(answer);
-  } catch (err) {
-    console.error(err);
+    await client.send(authCommand);
+
+    const statusCommand = new OCPPCommands.StatusNotification({
+      connectorId,
+      errorCode: StatusNotificationConst.ERRORCODE_NOERROR,
+      status: StatusNotificationConst.STATUS_CHARGING
+    });
+
+    await client.send(statusCommand);
+
+    const startCommand = new OCPPCommands.StartTransaction({
+      connectorId,
+      idTag,
+      meterStart: 0,
+      timestamp: new Date().toISOString(),
+    });
+
+    await client.send(startCommand);
+  }
+
+  async function stopTransaction({ transactionId }) {
+    const statusCommand = new OCPPCommands.StatusNotification({
+      connectorId: transactionId,
+      errorCode: StatusNotificationConst.ERRORCODE_NOERROR,
+      status: StatusNotificationConst.STATUS_AVAILABLE
+    });
+
+    await client.send(statusCommand);
+
+    const startCommand = new OCPPCommands.StopTransaction({
+      transactionId,
+      meterStop: 1,
+      timestamp: new Date().toISOString(),
+    });
+
+    await client.send(startCommand);
   }
 }
+
 
 run();
