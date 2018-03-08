@@ -19,8 +19,8 @@ async function run() {
   await setupGPIO(27);
 
   const client = new ChargePoint({
-    centralSystemUrl: `http://localhost:9220/webServices/ocpp/CP${Math.floor(Math.random() * 9999)}`,
-    // centralSystemUrl: `https://ocpp-example.herokuapp.com/webServices/ocpp/CP${Math.floor(Math.random() * 9999)}`,
+    // centralSystemUrl: `http://localhost:9220/webServices/ocpp/CP${Math.floor(Math.random() * 9999)}`,
+    centralSystemUrl: `https://ocpp-example.herokuapp.com/webServices/ocpp/CP${Math.floor(Math.random() * 9999)}`,
     connectors: [
       connector1,
       connector2

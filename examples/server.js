@@ -53,7 +53,7 @@ async function accept(req, res, next) {
     return;
   }
 
-  fs.readFile(`${__dirname}/index.html`, (err, file) => {
+  fs.readFile(`${__dirname}/../index.html`, (err, file) => {
     if (err) {
       return next(err);
     }
