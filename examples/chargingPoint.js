@@ -1,3 +1,4 @@
+import gpio from 'rpi-gpio';
 import { ChargePoint, Connector, OCPPCommands } from '../dist';
 import * as BootNotificationConst from "../dist/commands/BootNotification";
 import * as StatusNotificationConst from "../dist/commands/StatusNotification";
@@ -13,6 +14,9 @@ process.on('unhandledRejection', function (reason, p) {
 async function run() {
   const connector1 = new Connector(1);
   const connector2 = new Connector(2);
+
+  await setupGPIO(17);
+  await setupGPIO(27);
 
   const client = new ChargePoint({
     centralSystemUrl: `http://localhost:9220/webServices/ocpp/CP${Math.floor(Math.random() * 9999)}`,
@@ -79,6 +83,8 @@ async function run() {
     });
 
     await client.send(startCommand);
+
+    await turnOn(17);
   }
 
   async function stopTransaction({ transactionId }) {
@@ -97,6 +103,26 @@ async function run() {
     });
 
     await client.send(startCommand);
+
+    await turnOff(17);
+  }
+
+  function setupGPIO(port) {
+    return new Promise((success) => {
+      gpio.setup(port, gpio.DIR_OUT, success);
+    });
+  }
+
+  function turnOn(pin) {
+    return new Promise((success) => {
+      gpio.write(pin, 0, success);
+    });
+  }
+
+  function turnOff(port) {
+    return new Promise((success) => {
+      gpio.write(pin, 1, success);
+    });
   }
 }
 
