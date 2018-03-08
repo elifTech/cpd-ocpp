@@ -24,9 +24,9 @@
   "dependencies": {
     "debug": "^3.1.0",
     "enjoi": "^3.2.2",
+    "gpio": "^0.2.7",
     "joi": "^13.1.2",
     "joi-date-extensions": "^1.1.1",
-    "rpi-gpio": "^0.9.1",
     "uuid": "^3.2.1",
     "ws": "^4.0.0"
   },
