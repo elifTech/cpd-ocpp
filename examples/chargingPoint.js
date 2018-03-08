@@ -84,7 +84,7 @@ async function run() {
 
     await client.send(startCommand);
 
-    pin17.set();
+    pin17.reset();
   }
 
   async function stopTransaction({ transactionId }) {
@@ -104,7 +104,7 @@ async function run() {
 
     await client.send(startCommand);
 
-    pin17.reset();
+    pin17.set();
   }
 
   function setupGPIO(port) {
