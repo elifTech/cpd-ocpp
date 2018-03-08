@@ -148,7 +148,7 @@ var Connection = exports.Connection = function () {
                 _context.prev = 26;
                 _context.t2 = _context['catch'](22);
                 _context.next = 30;
-                return this.sendError(new _ocppError2.default(_ocppError.ERROR_FORMATIONVIOLATION, _context.t2.message));
+                return this.sendError(messageId, new _ocppError2.default(_ocppError.ERROR_FORMATIONVIOLATION, _context.t2.message));
 
               case 30:
                 return _context.abrupt('return', _context.sent);
@@ -169,7 +169,7 @@ var Connection = exports.Connection = function () {
                 _context.prev = 38;
                 _context.t3 = _context['catch'](31);
                 _context.next = 42;
-                return this.sendError(_context.t3);
+                return this.sendError(messageId, _context.t3);
 
               case 42:
                 return _context.abrupt('return', _context.sent);
@@ -187,7 +187,7 @@ var Connection = exports.Connection = function () {
                 _context.prev = 48;
                 _context.t4 = _context['catch'](43);
                 _context.next = 52;
-                return this.sendError(_context.t4);
+                return this.sendError(messageId, _context.t4);
 
               case 52:
                 return _context.abrupt('break', 68);
@@ -215,16 +215,16 @@ var Connection = exports.Connection = function () {
                 // error response
                 debug('>> ' + this.url + ': ' + message);
 
-                _requests$messageId2 = (0, _slicedToArray3.default)(this.requests[messageId], 2), rejectCallback = _requests$messageId2[1];
-
-                if (rejectCallback) {
-                  _context.next = 64;
+                if (this.requests[messageId]) {
+                  _context.next = 63;
                   break;
                 }
 
                 throw new Error('Response for unknown message ' + messageId);
 
-              case 64:
+              case 63:
+                _requests$messageId2 = (0, _slicedToArray3.default)(this.requests[messageId], 2), rejectCallback = _requests$messageId2[1];
+
                 delete this.requests[messageId];
 
                 rejectCallback(new _ocppError2.default(commandNameOrPayload, commandPayload, errorDetails));
@@ -256,12 +256,12 @@ var Connection = exports.Connection = function () {
     }
   }, {
     key: 'sendError',
-    value: function sendError(err) {
+    value: function sendError(messageId, err) {
       debug('Error: ' + err.message);
 
       var error = err instanceof _ocppError2.default ? err : new _ocppError2.default(_ocppError.ERROR_INTERNALERROR, err.message);
 
-      return this.sendMessage((0, _v2.default)(), error, _constants.CALLERROR_MESSAGE);
+      return this.sendMessage(messageId, error, _constants.CALLERROR_MESSAGE);
     }
   }, {
     key: 'sendMessage',
@@ -317,7 +317,7 @@ var Connection = exports.Connection = function () {
         }
         function onRejectResponse(reason) {
           self.requests[messageId] = function () {};
-          var error = reason instanceof Error ? reason : new Error(reason);
+          var error = reason instanceof _ocppError2.default ? reason : new Error(reason);
           reject(error);
         }
       });

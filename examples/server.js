@@ -24,8 +24,6 @@ function onDigits(req, res) {
     'Cache-Control': 'no-cache'
   });
 
-  console.info(centralSystem.clients);
-
   const timer = setInterval(write, 1000);
   write();
 

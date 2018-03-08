@@ -1,9 +1,9 @@
-import { CentralSystem, OCPPCommands } from '../src';
-import * as AuthorizeConst from '../src/commands/Authorize';
-import * as StartTransactionConst from '../src/commands/StartTransaction';
-import OCPPError, { ERROR_NOTIMPLEMENTED } from '../src/ocppError';
-import * as BootNotificationConst from '../src/commands/BootNotification';
-import * as StatusNotificationConst from '../src/commands/StatusNotification';
+import { CentralSystem, OCPPCommands } from '../dist';
+import * as AuthorizeConst from '../dist/commands/Authorize';
+import * as StartTransactionConst from '../dist/commands/StartTransaction';
+import OCPPError, { ERROR_NOTIMPLEMENTED } from '../dist/ocppError';
+import * as BootNotificationConst from '../dist/commands/BootNotification';
+import * as StatusNotificationConst from '../dist/commands/StatusNotification';
 
 export
 function createServer(server) {
@@ -65,7 +65,6 @@ function createServer(server) {
         // client.info = client.info || {};
         // client.info.connectors = client.info.connectors || [];
 
-        console.info('-----', client);
         const connectorIndex = client.info.connectors.findIndex(item => command.connectorId === item.connectorId);
         if (connectorIndex === -1) {
           client.info.connectors.push({
@@ -107,7 +106,6 @@ function createServer(server) {
   return cSystem;
 
   function validateConnection(url) {
-    console.info(url);
     return true;
   }
 }

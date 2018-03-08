@@ -36,6 +36,10 @@ var _connection = require('./connection');
 
 var _constants = require('./constants');
 
+var _centralSystemClient = require('./centralSystemClient');
+
+var _centralSystemClient2 = _interopRequireDefault(_centralSystemClient);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var debug = (0, _debug2.default)(_constants.DEBUG_LIBNAME);
@@ -139,20 +143,22 @@ var CentralSystem = function () {
 
       var connection = new _connection.Connection(socket, req);
 
+      var client = new _centralSystemClient2.default(connection);
+
       connection.onRequest = function (command) {
-        return _this2.onRequest(connection, command);
+        return _this2.onRequest(client, command);
       };
 
       socket.on('close', function (err) {
-        var index = _this2.clients.indexOf(connection);
+        var index = _this2.clients.indexOf(client);
         _this2.clients.splice(index, 1);
       });
-      this.clients.push(connection);
+      this.clients.push(client);
     }
   }, {
     key: 'onRequest',
     value: function () {
-      var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(connection, command) {
+      var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(client, command) {
         return _regenerator2.default.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {

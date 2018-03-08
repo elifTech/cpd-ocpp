@@ -1,7 +1,7 @@
-import { ChargePoint, Connector, OCPPCommands } from '../src';
-import * as BootNotificationConst from "../src/commands/BootNotification";
-import * as StatusNotificationConst from "../src/commands/StatusNotification";
-import * as RemoteStartTransactionConst from "../src/commands/RemoteStartTransaction";
+import { ChargePoint, Connector, OCPPCommands } from '../dist';
+import * as BootNotificationConst from "../dist/commands/BootNotification";
+import * as StatusNotificationConst from "../dist/commands/StatusNotification";
+import * as RemoteStartTransactionConst from "../dist/commands/RemoteStartTransaction";
 
 process.on('uncaughtException', function (err) {
   console.log('Caught exception: ' + err);
@@ -43,13 +43,12 @@ async function run() {
 
     const boot = new OCPPCommands.BootNotification({
       chargePointVendor: 'BrandX',
-      chargeBoxSerialNumber: 'AQ1234VB5678',
+      chargeBoxSerialNumber: 'SR' + Math.round(Math.random() * 100000),
       chargePointSerialNumber: '123',
       chargePointModel: '12'
     });
 
     let answer = await client.send(boot);
-    console.info(answer);
 
     await client.sendCurrentStatus();
   } catch (err) {

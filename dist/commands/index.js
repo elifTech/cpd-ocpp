@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.CENTRAL_SYSTEM_COMMANDS = exports.CHARGE_POINT_COMMANDS = undefined;
 
 var _Authorize = require('./Authorize');
 
@@ -86,6 +87,41 @@ exports.default = {
   StartTransaction: _StartTransaction.StartTransaction,
   StatusNotification: _StatusNotification.StatusNotification,
   StopTransaction: _StopTransaction.StopTransaction,
+  TriggerMessage: _TriggerMessage.TriggerMessage,
+  UnlockConnector: _UnlockConnector.UnlockConnector,
+  UpdateFirmware: _UpdateFirmware.UpdateFirmware
+};
+
+var CHARGE_POINT_COMMANDS = exports.CHARGE_POINT_COMMANDS = {
+  Authorize: _Authorize.Authorize,
+  BootNotification: _BootNotification.BootNotification,
+  DataTransfer: _DataTransfer.DataTransfer,
+  DiagnosticsStatusNotification: _DiagnosticsStatusNotification.DiagnosticsStatusNotification,
+  FirmwareStatusNotification: _FirmwareStatusNotification.FirmwareStatusNotification,
+  Heartbeat: _Heartbeat.Heartbeat,
+  MeterValues: _MeterValues.MeterValues,
+  StartTransaction: _StartTransaction.StartTransaction,
+  StatusNotification: _StatusNotification.StatusNotification,
+  StopTransaction: _StopTransaction.StopTransaction
+};
+
+var CENTRAL_SYSTEM_COMMANDS = exports.CENTRAL_SYSTEM_COMMANDS = {
+  CancelReservation: _CancelReservation.CancelReservation,
+  ChangeAvailability: _ChangeAvailability.ChangeAvailability,
+  ChangeConfiguration: _ChangeConfiguration.ChangeConfiguration,
+  ClearCache: _ClearCache.ClearCache,
+  ClearChargingProfile: _ClearChargingProfile.ClearChargingProfile,
+  DataTransfer: _DataTransfer.DataTransfer,
+  GetCompositeSchedule: _GetCompositeSchedule.GetCompositeSchedule,
+  GetConfiguration: _GetConfiguration.GetConfiguration,
+  GetDiagnostics: _GetDiagnostics.GetDiagnostics,
+  GetLocalListVersion: _GetLocalListVersion.GetLocalListVersion,
+  RemoteStartTransaction: _RemoteStartTransaction.RemoteStartTransaction,
+  RemoteStopTransaction: _RemoteStopTransaction.RemoteStopTransaction,
+  ReserveNow: _ReserveNow.ReserveNow,
+  Reset: _Reset.Reset,
+  SendLocalList: _SendLocalList.SendLocalList,
+  SetChargingProfile: _SetChargingProfile.SetChargingProfile,
   TriggerMessage: _TriggerMessage.TriggerMessage,
   UnlockConnector: _UnlockConnector.UnlockConnector,
   UpdateFirmware: _UpdateFirmware.UpdateFirmware

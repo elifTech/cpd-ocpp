@@ -4,6 +4,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends2 = require('babel-runtime/helpers/extends');
+
+var _extends3 = _interopRequireDefault(_extends2);
+
 var _regenerator = require('babel-runtime/regenerator');
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
@@ -34,11 +38,11 @@ var _debug2 = _interopRequireDefault(_debug);
 
 var _commands = require('./commands');
 
+var _commands2 = _interopRequireDefault(_commands);
+
 var _connection = require('./connection');
 
 var _constants = require('./constants');
-
-var _index = require('./index');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -51,9 +55,12 @@ var ChargePoint = function () {
    * @param {Object} options Configuration options
    * @param {String} options.centralSystemUrl The url where to connect
    * @param {String} options.reconnectInterval The number of milliseconds to delay before attempting to reconnect (default: 5 minutes)
+   * @param {String} options.connectors Array of virtual connectors
    */
   function ChargePoint(options) {
     (0, _classCallCheck3.default)(this, ChargePoint);
+
+    options.connectors = options.connectors || [];
 
     this.options = options;
   }
@@ -145,6 +152,68 @@ var ChargePoint = function () {
   }, {
     key: 'onRequest',
     value: function onRequest(command) {}
+  }, {
+    key: 'getConnectors',
+    value: function getConnectors() {
+      return this.options.connectors;
+    }
+  }, {
+    key: 'sendCurrentStatus',
+    value: function () {
+      var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3() {
+        var _this3 = this;
+
+        var promises;
+        return _regenerator2.default.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                promises = this.getConnectors().map(function () {
+                  var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(connector) {
+                    var status, statusCommand;
+                    return _regenerator2.default.wrap(function _callee2$(_context2) {
+                      while (1) {
+                        switch (_context2.prev = _context2.next) {
+                          case 0:
+                            status = (0, _extends3.default)({
+                              timestamp: new Date().toISOString()
+                            }, connector);
+                            statusCommand = new _commands2.default.StatusNotification(status);
+                            _context2.next = 4;
+                            return _this3.send(statusCommand);
+
+                          case 4:
+                          case 'end':
+                            return _context2.stop();
+                        }
+                      }
+                    }, _callee2, _this3);
+                  }));
+
+                  return function (_x) {
+                    return _ref3.apply(this, arguments);
+                  };
+                }());
+                _context3.next = 3;
+                return _promise2.default.all(promises);
+
+              case 3:
+                return _context3.abrupt('return', _context3.sent);
+
+              case 4:
+              case 'end':
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this);
+      }));
+
+      function sendCurrentStatus() {
+        return _ref2.apply(this, arguments);
+      }
+
+      return sendCurrentStatus;
+    }()
   }]);
   return ChargePoint;
 }();
