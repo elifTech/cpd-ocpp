@@ -115,13 +115,13 @@ async function run() {
 
   function turnOn(pin) {
     return new Promise((success) => {
-      gpio.write(pin, 0, success);
+      gpio.write(pin, 1, success);
     });
   }
 
-  function turnOff(port) {
+  function turnOff(pin) {
     return new Promise((success) => {
-      gpio.write(pin, 1, success);
+      gpio.write(pin, 0, success);
     });
   }
 }
