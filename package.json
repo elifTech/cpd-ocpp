@@ -4,7 +4,7 @@
   "description": "OCPP 1.6: Open Charge Point Protocol",
   "main": "dist/index.js",
   "scripts": {
-    "start": "node src/server.js",
+    "start": "node examples-dist/server.js",
     "build": "rimraf dist && cross-env NODE_ENV=production babel src -d dist -s",
     "test": "cross-env NODE_ENV=test jest --forceExit tests",
     "cover": "npm run test -- --coverage",
