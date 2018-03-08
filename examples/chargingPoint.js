@@ -17,6 +17,8 @@ async function run() {
 
   const pin17 = await setupGPIO(17);
   const pin27 = await setupGPIO(27);
+  pin17.set();
+  pin27.set();
 
   const client = new ChargePoint({
     // centralSystemUrl: `http://localhost:9220/webServices/ocpp/CP${Math.floor(Math.random() * 9999)}`,
