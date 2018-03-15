@@ -19,9 +19,9 @@ Open Charge Point Protocol (OCPP, <http://www.openchargealliance.org/>) is a com
 Server
 
 ```js
-import { OCPPServer, OCPPCommands } from 'ocpp-eliftech';
+import { CentralSystem, OCPPCommands } from 'ocpp-eliftech';
 
-const server = new OCPPServer();
+const server = new CentralSystem();
 
 server.listen(9220);
 
@@ -40,9 +40,9 @@ server.onRequest = async function(command) {
 Client
 
 ```js
-import { OCPPClient, OCPPCommands } from 'ocpp-eliftech';
+import { ChargePoint, OCPPCommands } from 'ocpp-eliftech';
 
-const client = new OCPPClient({
+const client = new ChargePoint({
     serverUrl: 'http://localhost:9220/webServices/ocpp/CP1111'
 });
 
