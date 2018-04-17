@@ -5,6 +5,10 @@
 This repository contain abstraction layer for easy work with OCPP and validate input and output requests.
 Currently implemented only version 1.6 JSON. Whereas OCPP2.0 will support only JSON have no plans to implement SOAP.
 
+## Article
+
+https://www.eliftech.com/blog/48-a-diy-charging-point-for-an-electric-car-perspective-protocol-and-prototype
+
 ## Installation
 ```
 npm install --save ocpp-eliftech
