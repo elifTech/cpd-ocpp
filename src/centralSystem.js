@@ -75,11 +75,16 @@ export default class CentralSystem {
     socket.on('close', (err) => {
       const index = this.clients.indexOf(client);
       this.clients.splice(index, 1);
+      this.onDisconnect(client);
     });
     this.clients.push(client);
   }
 
   async onRequest (client, command) {
+    // implementation
+  }
+
+  async onDisconnect (client) {
     // implementation
   }
 }
