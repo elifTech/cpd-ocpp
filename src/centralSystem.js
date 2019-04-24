@@ -1,5 +1,6 @@
 import WebSocket from 'ws';
 import debugFn from 'debug';
+import Logger, { LOGGER_URL } from './logger';
 import { Connection } from './connection';
 import {
   DEBUG_LIBNAME,
@@ -13,6 +14,7 @@ export default class CentralSystem {
   constructor (options) {
     this.options = options || {};
     this.clients = [];
+    this.logger = new Logger();
   }
 
   listen (port = 9220, host = null) {
@@ -30,9 +32,13 @@ export default class CentralSystem {
         return OCPP_PROTOCOL_1_6;
       },
       verifyClient: async (info, cb) => {
+        if (info.req.url === LOGGER_URL) {
+          debug('Logger connected');
+          return cb(true);
+        }
         const isAccept = await validateConnection(info.req.url);
 
-        debug(`Request for connect "${info.req.url}" (${info.req.headers['sec-websocket-protocol']}) - ${isAccept ? 'Valid identifier' : 'Invalid identifier'}`);
+        this.logger.debug(`Request for connect "${info.req.url}" (${info.req.headers['sec-websocket-protocol']}) - ${isAccept ? 'Valid identifier' : 'Invalid identifier'}`);
 
         cb(isAccept, 404, 'Central System does not recognize the charge point identifier in the URL path');
       },
@@ -58,15 +64,20 @@ export default class CentralSystem {
       console.info(err, socket.readyState);
     });
 
+    if (req.url === LOGGER_URL) {
+      this.logger.addSocket(socket);
+      return;
+    }
+
     if (!socket.protocol) {
       // From Spec: If the Central System does not agree to using one of the subprotocols offered by the client,
       // it MUST complete the WebSocket handshake with a response without a Sec-WebSocket-Protocol header and then
       // immediately close the WebSocket connection.
-      debug(`Close connection due to unsupported protocol`);
+      this.logger.debug(`Close connection due to unsupported protocol`);
       return socket.close();
     }
 
-    const connection = new Connection(socket, req);
+    const connection = new Connection(socket, req, this.logger);
 
     const client = new CentralSystemClient(connection);
 

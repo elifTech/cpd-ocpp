@@ -19,16 +19,21 @@ const debug = debugFn(DEBUG_LIBNAME);
 
 export
 class Connection {
-  constructor (socket, req = null) {
+  constructor (socket, req = null, logger = null) {
     this.socket = socket;
     this.req = req;
     this.requests = {};
+    this.logger = logger;
 
     if (req) {
       this.url = req && req.url;
       const ip = req && ((req.connection && req.connection.remoteAddress) || req.headers[ 'x-forwarded-for' ]);
 
-      debug(`New connection from "${ip}", protocol "${socket.protocol}", url "${this.url}"`);
+      if (this.logger) {
+        this.logger.debug({ id: this.url, message: `New connection from "${ip}", protocol "${socket.protocol}", url "${this.url}"` });
+      } else {
+        debug(`New connection from "${ip}", protocol "${socket.protocol}", url "${this.url}"`);
+      }
     } else {
       this.url = 'SERVER';
       debug(`New connection to server`);
@@ -53,7 +58,11 @@ class Connection {
     switch (messageType) {
       case CALL_MESSAGE:
         // request
-        debug(`>> ${this.url}: ${message}`);
+        if (this.logger) {
+          this.logger.debug(`>> ${this.url}: ${message}`);
+        } else {
+          debug(`>> ${this.url}: ${message}`);
+        }
 
         const CommandModel = commands[commandNameOrPayload];
         if (!CommandModel) {
@@ -82,7 +91,11 @@ class Connection {
         break;
       case CALLRESULT_MESSAGE:
         // response
-        debug(`>> ${this.url}: ${message}`);
+        if (this.logger) {
+          this.logger.debug(`>> ${this.url}: ${message}`);
+        } else {
+          debug(`>> ${this.url}: ${message}`);
+        }
 
         const [responseCallback] = this.requests[messageId];
         if (!responseCallback) {
@@ -94,7 +107,11 @@ class Connection {
         break;
       case CALLERROR_MESSAGE:
         // error response
-        debug(`>> ${this.url}: ${message}`);
+        if (this.logger) {
+          this.logger.debug(`>> ${this.url}: ${message}`);
+        } else {
+          debug(`>> ${this.url}: ${message}`);
+        }
 
         if (!this.requests[messageId]) {
           throw new Error(`Response for unknown message ${messageId}`);
@@ -114,7 +131,11 @@ class Connection {
   }
 
   sendError (messageId, err) {
-    debug(`Error: ${err.message}`);
+    if (this.logger) {
+      this.logger.debug(`Error: ${err.message}`);
+    } else {
+      debug(`Error: ${err.message}`);
+    }
 
     const error = err instanceof OCPPError ? err : new OCPPError(ERROR_INTERNALERROR, err.message);
 
@@ -145,7 +166,12 @@ class Connection {
           break;
       }
 
-      debug(`<< ${messageToSend}`);
+      if (this.logger) {
+        this.logger.debug(`<< ${messageToSend}`);
+      } else {
+        debug(`<< ${messageToSend}`);
+      }
+
       if (socket.readyState === Websocket.OPEN) {
         socket.send(messageToSend);
       } else {
