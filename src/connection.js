@@ -42,7 +42,7 @@ class Connection {
     socket.on('message', (msg) => this.onMessage(msg));
 
     socket.on('error', (err) => {
-      console.info(err);
+      debug(err);
     });
   }
 

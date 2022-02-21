@@ -66,17 +66,23 @@ var Connection = exports.Connection = function () {
     var _this = this;
 
     var req = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    var logger = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
     (0, _classCallCheck3.default)(this, Connection);
 
     this.socket = socket;
     this.req = req;
     this.requests = {};
+    this.logger = logger;
 
     if (req) {
       this.url = req && req.url;
       var ip = req && (req.connection && req.connection.remoteAddress || req.headers['x-forwarded-for']);
 
-      debug('New connection from "' + ip + '", protocol "' + socket.protocol + '", url "' + this.url + '"');
+      if (this.logger) {
+        this.logger.debug({ id: this.url, message: 'New connection from "' + ip + '", protocol "' + socket.protocol + '", url "' + this.url + '"' });
+      } else {
+        debug('New connection from "' + ip + '", protocol "' + socket.protocol + '", url "' + this.url + '"');
+      }
     } else {
       this.url = 'SERVER';
       debug('New connection to server');
@@ -87,7 +93,7 @@ var Connection = exports.Connection = function () {
     });
 
     socket.on('error', function (err) {
-      console.info(err);
+      debug(err);
     });
   }
 
@@ -125,7 +131,11 @@ var Connection = exports.Connection = function () {
 
               case 17:
                 // request
-                debug('>> ' + this.url + ': ' + message);
+                if (this.logger) {
+                  this.logger.debug('>> ' + this.url + ': ' + message);
+                } else {
+                  debug('>> ' + this.url + ': ' + message);
+                }
 
                 CommandModel = _commands2.default[commandNameOrPayload];
 
@@ -194,7 +204,11 @@ var Connection = exports.Connection = function () {
 
               case 53:
                 // response
-                debug('>> ' + this.url + ': ' + message);
+                if (this.logger) {
+                  this.logger.debug('>> ' + this.url + ': ' + message);
+                } else {
+                  debug('>> ' + this.url + ': ' + message);
+                }
 
                 _requests$messageId = (0, _slicedToArray3.default)(this.requests[messageId], 1), responseCallback = _requests$messageId[0];
 
@@ -213,7 +227,11 @@ var Connection = exports.Connection = function () {
 
               case 60:
                 // error response
-                debug('>> ' + this.url + ': ' + message);
+                if (this.logger) {
+                  this.logger.debug('>> ' + this.url + ': ' + message);
+                } else {
+                  debug('>> ' + this.url + ': ' + message);
+                }
 
                 if (this.requests[messageId]) {
                   _context.next = 63;
@@ -241,7 +259,7 @@ var Connection = exports.Connection = function () {
         }, _callee, this, [[1, 11], [22, 26], [31, 38], [43, 48]]);
       }));
 
-      function onMessage(_x2) {
+      function onMessage(_x3) {
         return _ref.apply(this, arguments);
       }
 
@@ -257,7 +275,11 @@ var Connection = exports.Connection = function () {
   }, {
     key: 'sendError',
     value: function sendError(messageId, err) {
-      debug('Error: ' + err.message);
+      if (this.logger) {
+        this.logger.debug('Error: ' + err.message);
+      } else {
+        debug('Error: ' + err.message);
+      }
 
       var error = err instanceof _ocppError2.default ? err : new _ocppError2.default(_ocppError.ERROR_INTERNALERROR, err.message);
 
@@ -296,7 +318,12 @@ var Connection = exports.Connection = function () {
             break;
         }
 
-        debug('<< ' + messageToSend);
+        if (_this2.logger) {
+          _this2.logger.debug('<< ' + messageToSend);
+        } else {
+          debug('<< ' + messageToSend);
+        }
+
         if (socket.readyState === _ws2.default.OPEN) {
           socket.send(messageToSend);
         } else {

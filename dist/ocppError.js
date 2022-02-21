@@ -1,7 +1,7 @@
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
 exports.ERROR_GENERICERROR = exports.ERROR_TYPECONSTRAINTVIOLATION = exports.ERROR_OCCURENCECONSTRAINTVIOLATION = exports.ERROR_PROPERTYCONSTRAINTVIOLATION = exports.ERROR_FORMATIONVIOLATION = exports.ERROR_SECURITYERROR = exports.ERROR_PROTOCOLERROR = exports.ERROR_INTERNALERROR = exports.ERROR_NOTSUPPORTED = exports.ERROR_NOTIMPLEMENTED = undefined;
 
@@ -58,24 +58,24 @@ var ERROR_TYPECONSTRAINTVIOLATION = exports.ERROR_TYPECONSTRAINTVIOLATION = 'Typ
 var ERROR_GENERICERROR = exports.ERROR_GENERICERROR = 'GenericError';
 
 var OCPPError = function (_Error) {
-  (0, _inherits3.default)(OCPPError, _Error);
+    (0, _inherits3.default)(OCPPError, _Error);
 
-  function OCPPError(code, message, details) {
-    (0, _classCallCheck3.default)(this, OCPPError);
+    function OCPPError(code, message, details) {
+        (0, _classCallCheck3.default)(this, OCPPError);
 
-    var _this = (0, _possibleConstructorReturn3.default)(this, (OCPPError.__proto__ || (0, _getPrototypeOf2.default)(OCPPError)).call(this, message));
+        var _this = (0, _possibleConstructorReturn3.default)(this, (OCPPError.__proto__ || (0, _getPrototypeOf2.default)(OCPPError)).call(this, message));
 
-    _this.code = code;
-    _this.message = message;
-    _this.details = details;
+        _this.code = code;
+        _this.message = message;
+        _this.details = details;
 
-    (0, _setPrototypeOf2.default)(_this, OCPPError.prototype); // for instanceof
+        (0, _setPrototypeOf2.default)(_this, OCPPError.prototype); // for instanceof
 
-    Error.captureStackTrace ? Error.captureStackTrace(_this, _this.constructor) : _this.stack = new Error().stack;
-    return _this;
-  }
+        Error.captureStackTrace ? Error.captureStackTrace(_this, _this.constructor) : _this.stack = new Error().stack;
+        return _this;
+    }
 
-  return OCPPError;
+    return OCPPError;
 }(Error);
 
 exports.default = OCPPError;

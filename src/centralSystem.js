@@ -11,13 +11,13 @@ import CentralSystemClient from './centralSystemClient';
 const debug = debugFn(DEBUG_LIBNAME);
 
 export default class CentralSystem {
-  constructor (options) {
+  constructor(options) {
     this.options = options || {};
     this.clients = [];
     this.logger = new Logger();
   }
 
-  listen (port = 9220, host = null) {
+  listen(port = 9220, host = null) {
     this.port = port;
 
     const validateConnection = this.options.validateConnection || (() => true);
@@ -59,9 +59,11 @@ export default class CentralSystem {
     debug(`Listen on ${host || 'default host'}:${port}`);
   }
 
-  onNewConnection (socket, req) {
+  onNewConnection(socket, req) {
     socket.on('error', (err) => {
-      console.info(err, socket.readyState);
+      if (socket.readyState !== 2) {
+        console.info(err, socket.readyState);
+      }
     });
 
     if (req.url === LOGGER_URL) {
@@ -83,14 +85,19 @@ export default class CentralSystem {
 
     connection.onRequest = (command) => this.onRequest(client, command);
 
-    socket.on('close', (err) => {
+    socket.on('close', () => {
       const index = this.clients.indexOf(client);
       this.clients.splice(index, 1);
+      this.onClose(client);
     });
     this.clients.push(client);
   }
 
-  async onRequest (client, command) {
+  async onRequest(client, command) {
+    // implementation
+  }
+
+  async onClose(client) {
     // implementation
   }
 }
