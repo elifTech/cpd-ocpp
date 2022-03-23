@@ -83,13 +83,20 @@ export default class CentralSystem {
 
     const client = new CentralSystemClient(connection);
 
-    connection.onRequest = (command) => this.onRequest(client, command);
+    connection.onRequest = (command) => {
+      let registered = this.clients.find(r => r.connection.url.includes(connection.url));
+      if (!registered) {
+        this.clients.push(client);
+      }
+      this.onRequest(client, command);
+    };
 
     socket.on('close', () => {
       const index = this.clients.indexOf(client);
       this.clients.splice(index, 1);
       this.onClose(client);
     });
+
     this.clients.push(client);
   }
 

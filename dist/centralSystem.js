@@ -167,7 +167,13 @@ var CentralSystem = function () {
       var client = new _centralSystemClient2.default(connection);
 
       connection.onRequest = function (command) {
-        return _this2.onRequest(client, command);
+        var registered = _this2.clients.find(function (r) {
+          return r.connection.url.includes(connection.url);
+        });
+        if (!registered) {
+          _this2.clients.push(client);
+        }
+        _this2.onRequest(client, command);
       };
 
       socket.on('close', function () {
@@ -175,6 +181,7 @@ var CentralSystem = function () {
         _this2.clients.splice(index, 1);
         _this2.onClose(client);
       });
+
       this.clients.push(client);
     }
   }, {
