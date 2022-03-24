@@ -88,7 +88,7 @@ export default class CentralSystem {
       if (!registered) {
         this.clients.push(client);
       }
-      this.onRequest(client, command);
+      return this.onRequest(client, command);
     };
 
     socket.on('close', () => {

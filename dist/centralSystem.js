@@ -173,7 +173,7 @@ var CentralSystem = function () {
         if (!registered) {
           _this2.clients.push(client);
         }
-        _this2.onRequest(client, command);
+        return _this2.onRequest(client, command);
       };
 
       socket.on('close', function () {
