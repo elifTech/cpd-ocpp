@@ -76,7 +76,7 @@
 									},
 								"limit": {
 									"type": "number",
-									"multipleOf" : 0.1
+									"multiple" : 0.1
 								},
 								"numberPhases": {
 										"type": "integer"
@@ -90,7 +90,7 @@
 						},
 						"minChargingRate": {
 							"type": "number",
-							"multipleOf" : 0.1
+							"multiple" : 0.1
 						}
 					},
 					"required": [

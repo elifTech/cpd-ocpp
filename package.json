@@ -22,6 +22,8 @@
   },
   "homepage": "https://github.com/elifTech/cpd-ocpp#readme",
   "dependencies": {
+    "@sentry/node": "^6.17.9",
+    "@sentry/tracing": "^6.17.9",
     "debug": "^3.1.0",
     "enjoi": "^3.2.2",
     "joi": "^13.1.2",
